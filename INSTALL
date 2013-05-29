@@ -1,3 +1,5 @@
+Note that the top level directory must be named 'jay' for the Makefiles to work.
+
 installation instructions
 
 (0) if you work with SSCLI, make sure the path to this directory (after resolving any symbolic links) does not contain blanks -- blanks seem to confuse at least SSCLI on MacOS X 10.2.2.
@@ -22,7 +24,7 @@ If a suitable SSCLI is installed, it will also test in cs/{arith,recover}/.
 
 (4) copy some of {java,cs}/skeleton.* to a convenient location.
 
-(5) you might want to install a skript somewhere with something like
+(5) you might want to install a script somewhere with something like
 
 #!/bin/sh
 exec [path]/jay < [path]/[skeleton] "$@"
