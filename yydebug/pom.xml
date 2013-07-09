@@ -9,6 +9,18 @@
 
   <name>jay-yydebug</name>
   <url>https://github.com/jruby/jay</url>
+
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+
+  <scm>
+    <connection>scm:git:https://github.com/jruby/jay.git</connection>
+    <developerConnection>scm:git:git@github.com:jruby/jay</developerConnection>
+    <url>https://github.com/jruby/jay</url>
+  </scm>
   
   <build>
     <sourceDirectory>${basedir}</sourceDirectory>
