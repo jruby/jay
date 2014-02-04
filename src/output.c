@@ -343,7 +343,7 @@ int default_state;
 	if (to_state[i] != default_state)
 	    ++count;
     }
-    if (count == 0) return;
+    if (count == 0) return 0;
 
     symno = symbol_value[symbol] + 2*nstates;
 
@@ -920,13 +920,13 @@ output_yyRule_strings () {
   }
 }
 
-output_trailing_text()
+int output_trailing_text()
 {
     register int c, last;
     register FILE *in;
 
     if (line == 0)
-	return;
+	return 0;
 
     in = input_file;
     c = *cptr;
@@ -934,7 +934,7 @@ output_trailing_text()
     {
 	++lineno;
 	if ((c = getc(in)) == EOF)
-	    return;
+	    return 0;
         ++outline;
 	printf(line_format, lineno, input_file_name);
 	if (c == '\n')
@@ -969,7 +969,7 @@ output_trailing_text()
 }
 
 
-output_semantic_actions()
+int output_semantic_actions()
 {
     register int c, last;
 
@@ -979,7 +979,7 @@ output_semantic_actions()
 	open_error(action_file_name);
 
     if ((c = getc(action_file)) == EOF)
-	return;
+	return 0;
 
     last = c;
     if (c == '\n')

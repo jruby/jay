@@ -100,7 +100,7 @@ get_line()
 	if (line) { FREE(line); line = 0; }
 	cptr = 0;
 	saw_eof = 1;
-	return;
+	return 0;
     }
 
     if (line == 0 || linesize != (LINESIZE + 1))
@@ -116,7 +116,7 @@ get_line()
     for (;;)
     {
 	line[i]  =  c;
-	if (c == '\n') { cptr = line; return; }
+	if (c == '\n') { cptr = line; return 0; }
 	if (++i >= linesize)
 	{
 	    linesize += LINESIZE;
@@ -129,7 +129,7 @@ get_line()
 	    line[i] = '\n';
 	    saw_eof = 1;
 	    cptr = line;
-	    return;
+	    return 0;
 	}
     }
 }
@@ -168,7 +168,7 @@ skip_comment()
 	{
 	    cptr = s + 2;
 	    FREE(st_line);
-	    return;
+	    return 0;
 	}
 	if (*s == '\n')
 	{
@@ -415,7 +415,7 @@ loop:
 	    if (need_newline) putc('\n', f);
 	    ++cptr;
 	    FREE(t_line);
-	    return;
+	    return 0;
 	}
 	/* fall through */
 
@@ -711,7 +711,7 @@ int assoc;
 	else if (c == '\'' || c == '"')
 	    bp = get_literal();
 	else
-	    return;
+	    return 0;
 
 	if (bp == goal) tokenized_start(bp->name);
 	bp->class = TERM;
@@ -766,7 +766,7 @@ declare_types()
 	else if (c == '\'' || c == '"')
 	    bp = get_literal();
 	else
-	    return;
+	    return 0;
 
 	if (bp->tag && tag != bp->tag)
 	    retyped_warning(bp->name);
@@ -809,7 +809,7 @@ read_declarations()
 	switch (k = keyword())
 	{
 	case MARK:
-	    return;
+	    return 0;
 
 	case TEXT:
 	    copy_text(prolog_file);
@@ -1016,7 +1016,7 @@ add_symbol()
 	end_rule();
 	start_rule(bp, s_lineno);
 	++cptr;
-	return;
+	return 0;
     }
 
     if (last_was_action)
@@ -1163,7 +1163,7 @@ loop:
     case ';':
 	if (depth > 0) goto loop;
 	fprintf(f, "\nbreak;\n");
-	return;
+	return 0;
 
     case '{':
 	++depth;
@@ -1172,7 +1172,7 @@ loop:
     case '}':
 	if (--depth > 0) goto loop;
 	fprintf(f, "\n  break;\n");
-	return;
+	return 0;
 
     case '\'':
     case '"':
@@ -1338,7 +1338,7 @@ free_tags()
 {
     register int i;
 
-    if (tag_table == 0) return;
+    if (tag_table == 0) return 0;
 
     for (i = 0; i < ntags; ++i)
     {
@@ -1581,7 +1581,7 @@ print_grammar()
     int spacing;
     register FILE *f = verbose_file;
 
-    if (!vflag) return;
+    if (!vflag) return 0;
 
     k = 1;
     for (i = 2; i < nrules; ++i)

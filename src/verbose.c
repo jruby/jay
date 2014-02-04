@@ -46,7 +46,7 @@ verbose()
 {
     register int i;
 
-    if (!vflag) return;
+    if (!vflag) return 0;
 
     null_rules = (short *) MALLOC(nrules*sizeof(short));
     if (null_rules == 0) no_space();

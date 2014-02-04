@@ -80,7 +80,7 @@ char *st_cptr;
 {
     register char *s;
 
-    if (st_line == 0) return;
+    if (st_line == 0) return NULL;
     for (s = st_line; *s != '\n'; ++s)
     {
 	if (isprint(*s) || *s == '\t')
