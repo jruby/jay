@@ -93,9 +93,7 @@ char *nullable;
 extern char *mktemp();
 extern char *getenv();
 
-done(k)
-int k;
-{
+void done(int k) {
     if (action_file) { fclose(action_file); unlink(action_file_name); }
     if (prolog_file) { fclose(prolog_file); unlink(prolog_file_name); }
     if (local_file) { fclose(local_file); unlink(local_file_name); }
@@ -103,16 +101,12 @@ int k;
 }
 
 
-void
-onintr(signo)
-	int signo;
-{
+void onintr(int signo) {
     done(1);
 }
 
 
-set_signals()
-{
+void set_signals() {
 #ifdef SIGINT
     if (signal(SIGINT, SIG_IGN) != SIG_IGN)
 	signal(SIGINT, onintr);
@@ -128,17 +122,13 @@ set_signals()
 }
 
 
-usage()
-{
+void usage() {
     fprintf(stderr, "usage: %s [-ctv] [-b file_prefix] filename\n", myname);
     exit(1);
 }
 
 
-getargs(argc, argv)
-int argc;
-char *argv[];
-{
+void getargs(int argc, char **argv) {
     register int i;
     register char *s;
 
@@ -215,10 +205,7 @@ no_more_options:;
 }
 
 
-char *
-allocate(n)
-unsigned n;
-{
+char *allocate(unsigned n) {
     register char *p;
 
     p = NULL;
@@ -231,8 +218,7 @@ unsigned n;
 }
 
 
-create_file_names()
-{
+void create_file_names() {
     int i, len;
     char *tmpdir;
 
@@ -288,8 +274,7 @@ create_file_names()
 }
 
 
-open_files()
-{
+void open_files() {
     create_file_names();
 
     if (input_file == 0)
@@ -320,11 +305,7 @@ open_files()
 }
 
 
-int
-main(argc, argv)
-int argc;
-char *argv[];
-{
+int main(int argc, char **argv) {
     set_signals();
     getargs(argc, argv);
     open_files();

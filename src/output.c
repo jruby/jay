@@ -57,65 +57,12 @@ static short *check;
 static int lowzero;
 static int high;
 
-output () {
-  int lno = 0;
-  char buf [128];
-
-  free_itemsets();
-  free_shifts();
-  free_reductions();
-
-  while (fgets(buf, sizeof buf, stdin) != NULL) {
-    char * cp;
-    ++ lno;
-    if (buf[strlen(buf)-1] != '\n')
-      fprintf(stderr, "jay: line %d is too long\n", lno), done(1);
-    switch (buf[0]) {
-    case '#':	continue;
-    case 't':	if (!tflag) fputs("//t", stdout);
-    case '.':	break;
-    default:
-      cp = strtok(buf, " \t\r\n");
-      if (cp) {
-        char * prefix = strtok(NULL, "\r\n");
-        if (!prefix) prefix = "";
-        
-        if (strcmp(cp, "actions") == 0)       output_semantic_actions();
-        else if (strcmp(cp, "epilog") == 0)   output_trailing_text();
-        else if (strcmp(cp, "local") == 0)    output_stored_text(local_file, local_file_name);
-        else if (strcmp(cp, "prolog") == 0)   output_stored_text(prolog_file, prolog_file_name);
-        else if (strcmp(cp, "tokens") == 0)   output_defines(prefix);
-        else if (strcmp(cp, "version") == 0)  output_version(prefix);
-        else if (strcmp(cp, "yyCheck") == 0)  output_yyCheck(prefix);
-        else if (strcmp(cp, "yyDefRed") == 0) output_yyDefRed(prefix);
-        else if (strcmp(cp, "yyDgoto") == 0)  output_yyDgoto(prefix); 
-        else if (strcmp(cp, "yyFinal") == 0)  output_yyFinal(prefix);
-        else if (strcmp(cp, "yyGindex") == 0) output_yyGindex(prefix);
-        else if (strcmp(cp, "yyLen") == 0)    output_yyLen(prefix);
-        else if (strcmp(cp, "yyLhs") == 0)    output_yyLhs(prefix);
-        else if (strcmp(cp, "yyNames-strings") == 0) output_yyNames_strings();
-        else if (strcmp(cp, "yyNames") == 0)   output_yyNames(prefix);
-        else if (strcmp(cp, "yyRindex") == 0) output_yyRindex(prefix);
-        else if (strcmp(cp, "yyRule-strings") == 0) output_yyRule_strings();
-        else if (strcmp(cp, "yyRule") == 0)   output_yyRule(prefix);
-        else if (strcmp(cp, "yySindex") == 0) output_yySindex(prefix);
-        else if (strcmp(cp, "yyTable") == 0)  output_yyTable(prefix);
-        else
-          fprintf(stderr, "jay: unknown call (%s) in line %d\n", cp, lno);
-      }
-      continue;
-    }
-    fputs(buf+1, stdout), ++ outline;
-  }
-  free_parser();
-}
-
-output_version (const char * prefix) {
+void output_version (const char * prefix) {
   printf("// created by jay 1.0.2 (c) 2002-2004 ats@cs.rit.edu\n"
          "// skeleton %s\n", prefix), outline += 2;
 }
 
-output_yyLhs (const char * prefix) {
+void output_yyLhs (const char * prefix) {
   int i, j;
   
   printf("//yyLhs %d\n", nrules-2), ++ outline;
@@ -128,7 +75,7 @@ output_yyLhs (const char * prefix) {
   putchar('\n'), ++ outline;
 }
 
-output_yyLen (const char * prefix) {
+void output_yyLen (const char * prefix) {
   int i, j;
   
   printf("//yyLen %d\n", nrules-2), ++ outline;
@@ -141,7 +88,7 @@ output_yyLen (const char * prefix) {
   putchar('\n'), ++ outline;
 }
 
-output_yyDefRed (const char * prefix) {
+void output_yyDefRed (const char * prefix) {
   int i, j;
   
   printf("//yyDefRed %d\n", nstates), ++ outline;
@@ -154,32 +101,7 @@ output_yyDefRed (const char * prefix) {
   putchar('\n'), ++ outline;
 }
 
-output_yyDgoto (const char * prefix) {
-    nvectors = 2*nstates + nvars;
-
-    froms = NEW2(nvectors, short *);
-    tos = NEW2(nvectors, short *);
-    tally = NEW2(nvectors, short);
-    width = NEW2(nvectors, short);
-
-    token_actions();
-    FREE(lookaheads);
-    FREE(LA);
-    FREE(LAruleno);
-    FREE(accessing_symbol);
-
-    goto_actions(prefix);
-    FREE(goto_map + ntokens);
-    FREE(from_state);
-    FREE(to_state);
-
-    sort_actions();
-    pack_table();
-}
-
-
-token_actions()
-{
+void token_actions() {
     register int i, j;
     register int shiftcount, reducecount;
     register int max, min;
@@ -262,69 +184,7 @@ token_actions()
     FREE(actionrow);
 }
 
-goto_actions (const char * prefix) {
-    register int i, j, k;
-
-    state_count = NEW2(nstates, short);
-
-    k = default_goto(start_symbol + 1);
-
-  printf("//yyDgoto %d\n", 1 + nsyms - (start_symbol+2)), ++ outline;
-  
-  printf("%s%6d,", prefix, k), j = 1;
-  save_column(start_symbol + 1, k);
-  for (i = start_symbol + 2; i < nsyms; ++ i) {
-    if (j >= 10) printf("\n%s", prefix), j = 0, ++ outline;
-    k = default_goto(i);
-    printf("%6d,", k), ++ j;
-    save_column(i, k);
-  }
-  putchar('\n'), ++ outline;
-
-  FREE(state_count);
-}
-
-int
-default_goto(symbol)
-int symbol;
-{
-    register int i;
-    register int m;
-    register int n;
-    register int default_state;
-    register int max;
-
-    m = goto_map[symbol];
-    n = goto_map[symbol + 1];
-
-    if (m == n) return (0);
-
-    for (i = 0; i < nstates; i++)
-	state_count[i] = 0;
-
-    for (i = m; i < n; i++)
-	state_count[to_state[i]]++;
-
-    max = 0;
-    default_state = 0;
-    for (i = 0; i < nstates; i++)
-    {
-	if (state_count[i] > max)
-	{
-	    max = state_count[i];
-	    default_state = i;
-	}
-    }
-
-    return (default_state);
-}
-
-
-
-save_column(symbol, default_state)
-int symbol;
-int default_state;
-{
+void save_column(int symbol, int default_state) {
     register int i;
     register int m;
     register int n;
@@ -363,8 +223,30 @@ int default_state;
     width[symno] = sp1[-1] - sp[0] + 1;
 }
 
-sort_actions()
-{
+
+void goto_actions (const char * prefix) {
+    register int i, j, k;
+
+    state_count = NEW2(nstates, short);
+
+    k = default_goto(start_symbol + 1);
+
+  printf("//yyDgoto %d\n", 1 + nsyms - (start_symbol+2)), ++ outline;
+  
+  printf("%s%6d,", prefix, k), j = 1;
+  save_column(start_symbol + 1, k);
+  for (i = start_symbol + 2; i < nsyms; ++ i) {
+    if (j >= 10) printf("\n%s", prefix), j = 0, ++ outline;
+    k = default_goto(i);
+    printf("%6d,", k), ++ j;
+    save_column(i, k);
+  }
+  putchar('\n'), ++ outline;
+
+  FREE(state_count);
+}
+
+void sort_actions() {
   register int i;
   register int j;
   register int k;
@@ -398,8 +280,7 @@ sort_actions()
 }
 
 
-pack_table()
-{
+void pack_table() {
     register int i;
     register int place;
     register int state;
@@ -444,6 +325,66 @@ pack_table()
 }
 
 
+void output_yyDgoto (const char * prefix) {
+    nvectors = 2*nstates + nvars;
+
+    froms = NEW2(nvectors, short *);
+    tos = NEW2(nvectors, short *);
+    tally = NEW2(nvectors, short);
+    width = NEW2(nvectors, short);
+
+    token_actions();
+    FREE(lookaheads);
+    FREE(LA);
+    FREE(LAruleno);
+    FREE(accessing_symbol);
+
+    goto_actions(prefix);
+    FREE(goto_map + ntokens);
+    FREE(from_state);
+    FREE(to_state);
+
+    sort_actions();
+    pack_table();
+}
+
+
+int default_goto(int symbol) {
+    register int i;
+    register int m;
+    register int n;
+    register int default_state;
+    register int max;
+
+    m = goto_map[symbol];
+    n = goto_map[symbol + 1];
+
+    if (m == n) return (0);
+
+    for (i = 0; i < nstates; i++)
+	state_count[i] = 0;
+
+    for (i = m; i < n; i++)
+	state_count[to_state[i]]++;
+
+    max = 0;
+    default_state = 0;
+    for (i = 0; i < nstates; i++)
+    {
+	if (state_count[i] > max)
+	{
+	    max = state_count[i];
+	    default_state = i;
+	}
+    }
+
+    return (default_state);
+}
+
+
+
+
+
 /*  The function matching_vector determines if the vector specified by	*/
 /*  the input parameter matches a previously considered	vector.  The	*/
 /*  test at the start of the function checks if the vector represents	*/
@@ -460,10 +401,7 @@ pack_table()
 /*  faster.  Also, it depends on the vectors being in a specific	*/
 /*  order.								*/
 
-int
-matching_vector(vector)
-int vector;
-{
+int matching_vector(int vector) {
     register int i;
     register int j;
     register int k;
@@ -501,10 +439,7 @@ int vector;
 
 
 
-int
-pack_vector(vector)
-int vector;
-{
+int pack_vector(int vector) {
     register int i, j, k, l;
     register int t;
     register int loc;
@@ -577,7 +512,7 @@ int vector;
     }
 }
 
-output_yySindex (const char * prefix) {
+void output_yySindex (const char * prefix) {
   int i, j;
 
   printf("//yySindex %d\n", nstates), ++ outline;
@@ -590,7 +525,7 @@ output_yySindex (const char * prefix) {
   putchar('\n'), ++ outline;
 }
 
-output_yyRindex (const char * prefix) {
+void output_yyRindex (const char * prefix) {
   int i, j;
 
   printf("//yyRindex %d\n", nstates), ++ outline;
@@ -603,7 +538,7 @@ output_yyRindex (const char * prefix) {
   putchar('\n'), ++ outline;
 }
 
-output_yyGindex (const char * prefix) {
+void output_yyGindex (const char * prefix) {
   int i, j;
 
   printf("//yyGindex %d\n", 1 + nvectors-1 - (2*nstates + 1)), ++ outline;
@@ -618,7 +553,7 @@ output_yyGindex (const char * prefix) {
   FREE(base);
 }
 
-output_yyTable (const char * prefix) {
+void output_yyTable (const char * prefix) {
   int i, j;
 
   printf("//yyTable %d\n", high+1), ++ outline;
@@ -633,7 +568,7 @@ output_yyTable (const char * prefix) {
   FREE(table);
 }
 
-output_yyCheck (const char * prefix) {
+void output_yyCheck (const char * prefix) {
   int i, j;
 
   printf("//yyCheck %d\n", high+1), ++ outline;
@@ -649,10 +584,7 @@ output_yyCheck (const char * prefix) {
 }
 
 
-int
-is_C_identifier(name)
-char *name;
-{
+int is_C_identifier(char *name) {
     register char *s;
     register int c;
 
@@ -682,9 +614,7 @@ char *name;
 }
 
 
-output_defines(prefix)
-char *prefix;
-{
+void output_defines(char *prefix) {
     register int c, i;
     register char *s;
 
@@ -720,10 +650,7 @@ char *prefix;
 }
 
 
-output_stored_text(file, name)
-FILE *file;
-char *name;
-{
+void output_stored_text(FILE *file, char *name) {
     register int c;
     register FILE *in;
 
@@ -746,11 +673,11 @@ char *name;
     fclose(in);
 }
 
-output_yyFinal (const char * prefix) {
+void output_yyFinal (const char * prefix) {
   printf("  %s %d;\n", prefix, final_state), ++ outline;
 }
 
-output_yyNames (const char * prefix) {
+void output_yyNames (const char * prefix) {
   int i, j, max;
 
   max = 0;
@@ -764,7 +691,7 @@ output_yyNames (const char * prefix) {
     printf("%s %d %s\n", prefix, symbol_value[i], symbol_name[i]), ++ outline;
 }
 
-output_yyNames_strings () {
+void output_yyNames_strings () {
   int i, j, k, max;
   char **symnam, *s;
 
@@ -869,7 +796,7 @@ output_yyNames_strings () {
   FREE(symnam);
 }
 
-output_yyRule (const char * prefix) {
+void output_yyRule (const char * prefix) {
   int i, j;
 
   printf("//yyRule %d\n", nrules - 2), ++ outline;
@@ -881,7 +808,7 @@ output_yyRule (const char * prefix) {
   }
 }
 
-output_yyRule_strings () {
+void output_yyRule_strings () {
   int i, j;
   char *s;
   char * prefix = tflag ? "" : "//t";
@@ -920,8 +847,7 @@ output_yyRule_strings () {
   }
 }
 
-output_trailing_text()
-{
+void output_trailing_text() {
     register int c, last;
     register FILE *in;
 
@@ -969,8 +895,7 @@ output_trailing_text()
 }
 
 
-output_semantic_actions()
-{
+void output_semantic_actions() {
     register int c, last;
 
     fclose(action_file);
@@ -1003,8 +928,7 @@ output_semantic_actions()
 }
 
 
-free_itemsets()
-{
+void free_itemsets() {
     register core *cp, *next;
 
     FREE(state_table);
@@ -1016,8 +940,7 @@ free_itemsets()
 }
 
 
-free_shifts()
-{
+void free_shifts() {
     register shifts *sp, *next;
 
     FREE(shift_table);
@@ -1030,8 +953,7 @@ free_shifts()
 
 
 
-free_reductions()
-{
+void free_reductions() {
     register reductions *rp, *next;
 
     FREE(reduction_table);
@@ -1041,3 +963,58 @@ free_reductions()
 	FREE(rp);
     }
 }
+
+void output () {
+  int lno = 0;
+  char buf [128];
+
+  free_itemsets();
+  free_shifts();
+  free_reductions();
+
+  while (fgets(buf, sizeof buf, stdin) != NULL) {
+    char * cp;
+    ++ lno;
+    if (buf[strlen(buf)-1] != '\n')
+      fprintf(stderr, "jay: line %d is too long\n", lno), done(1);
+    switch (buf[0]) {
+    case '#':	continue;
+    case 't':	if (!tflag) fputs("//t", stdout);
+    case '.':	break;
+    default:
+      cp = strtok(buf, " \t\r\n");
+      if (cp) {
+        char * prefix = strtok(NULL, "\r\n");
+        if (!prefix) prefix = "";
+        
+        if (strcmp(cp, "actions") == 0)       output_semantic_actions();
+        else if (strcmp(cp, "epilog") == 0)   output_trailing_text();
+        else if (strcmp(cp, "local") == 0)    output_stored_text(local_file, local_file_name);
+        else if (strcmp(cp, "prolog") == 0)   output_stored_text(prolog_file, prolog_file_name);
+        else if (strcmp(cp, "tokens") == 0)   output_defines(prefix);
+        else if (strcmp(cp, "version") == 0)  output_version(prefix);
+        else if (strcmp(cp, "yyCheck") == 0)  output_yyCheck(prefix);
+        else if (strcmp(cp, "yyDefRed") == 0) output_yyDefRed(prefix);
+        else if (strcmp(cp, "yyDgoto") == 0)  output_yyDgoto(prefix); 
+        else if (strcmp(cp, "yyFinal") == 0)  output_yyFinal(prefix);
+        else if (strcmp(cp, "yyGindex") == 0) output_yyGindex(prefix);
+        else if (strcmp(cp, "yyLen") == 0)    output_yyLen(prefix);
+        else if (strcmp(cp, "yyLhs") == 0)    output_yyLhs(prefix);
+        else if (strcmp(cp, "yyNames-strings") == 0) output_yyNames_strings();
+        else if (strcmp(cp, "yyNames") == 0)   output_yyNames(prefix);
+        else if (strcmp(cp, "yyRindex") == 0) output_yyRindex(prefix);
+        else if (strcmp(cp, "yyRule-strings") == 0) output_yyRule_strings();
+        else if (strcmp(cp, "yyRule") == 0)   output_yyRule(prefix);
+        else if (strcmp(cp, "yySindex") == 0) output_yySindex(prefix);
+        else if (strcmp(cp, "yyTable") == 0)  output_yyTable(prefix);
+        else
+          fprintf(stderr, "jay: unknown call (%s) in line %d\n", cp, lno);
+      }
+      continue;
+    }
+    fputs(buf+1, stdout), ++ outline;
+  }
+  free_parser();
+}
+
+
