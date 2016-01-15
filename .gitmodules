@@ -1,0 +1,3 @@
+[submodule "yydebug"]
+	path = yydebug
+	url = https://github.com/jruby/jay-yydebug.git
