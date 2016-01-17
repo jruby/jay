@@ -74,8 +74,7 @@ static short *VERTICES;
 static int top;
 
 
-lalr()
-{
+void lalr() {
     tokensetsize = WORDSIZE(ntokens);
 
     set_state_table();
@@ -93,8 +92,7 @@ lalr()
 
 
 
-set_state_table()
-{
+void set_state_table() {
     register core *sp;
 
     state_table = NEW2(nstates, core *);
@@ -104,8 +102,7 @@ set_state_table()
 
 
 
-set_accessing_symbol()
-{
+void set_accessing_symbol() {
     register core *sp;
 
     accessing_symbol = NEW2(nstates, short);
@@ -115,8 +112,7 @@ set_accessing_symbol()
 
 
 
-set_shift_table()
-{
+void set_shift_table() {
     register shifts *sp;
 
     shift_table = NEW2(nstates, shifts *);
@@ -126,8 +122,7 @@ set_shift_table()
 
 
 
-set_reduction_table()
-{
+void set_reduction_table() {
     register reductions *rp;
 
     reduction_table = NEW2(nstates, reductions *);
@@ -137,8 +132,7 @@ set_reduction_table()
 
 
 
-set_maxrhs()
-{
+void set_maxrhs() {
   register short *itemp;
   register short *item_end;
   register int length;
@@ -165,8 +159,7 @@ set_maxrhs()
 
 
 
-initialize_LA()
-{
+void initialize_LA() {
   register int i, j, k;
   register reductions *rp;
 
@@ -202,8 +195,7 @@ initialize_LA()
 }
 
 
-set_goto_map()
-{
+void set_goto_map() {
   register shifts *sp;
   register int i;
   register int symbol;
@@ -271,11 +263,7 @@ set_goto_map()
 
 /*  Map_goto maps a state/symbol pair into its numeric representation.	*/
 
-int
-map_goto(state, symbol)
-int state;
-int symbol;
-{
+int map_goto(int state, int symbol) {
     register int high;
     register int low;
     register int middle;
@@ -300,8 +288,7 @@ int symbol;
 
 
 
-initialize_F()
-{
+void initialize_F() {
   register int i;
   register int j;
   register int k;
@@ -377,8 +364,7 @@ initialize_F()
 
 
 
-build_relations()
-{
+void build_relations() {
   register int i;
   register int j;
   register int k;
@@ -469,9 +455,7 @@ build_relations()
 }
 
 
-add_lookback_edge(stateno, ruleno, gotono)
-int stateno, ruleno, gotono;
-{
+void add_lookback_edge(int stateno, int ruleno, int gotono) {
     register int i, k;
     register int found;
     register shorts *sp;
@@ -496,11 +480,7 @@ int stateno, ruleno, gotono;
 
 
 
-short **
-transpose(R, n)
-short **R;
-int n;
-{
+short **transpose(short **R, int n) {
   register short **new_R;
   register short **temp_R;
   register short *nedges;
@@ -554,14 +534,12 @@ int n;
 
 
 
-compute_FOLLOWS()
-{
+void compute_FOLLOWS() {
   digraph(includes);
 }
 
 
-compute_lookaheads()
-{
+void compute_lookaheads() {
   register int i, n;
   register unsigned *fp1, *fp2, *fp3;
   register shorts *sp, *next;
@@ -594,9 +572,7 @@ compute_lookaheads()
 }
 
 
-digraph(relation)
-short **relation;
-{
+void digraph(short **relation) {
   register int i;
 
   infinity = ngotos + 2;
@@ -621,9 +597,7 @@ short **relation;
 
 
 
-traverse(i)
-register int i;
-{
+void traverse(int i) {
   register unsigned *fp1;
   register unsigned *fp2;
   register unsigned *fp3;

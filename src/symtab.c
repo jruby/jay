@@ -39,6 +39,7 @@ static char sccsid[] = "@(#)symtab.c	5.3 (Berkeley) 6/1/90";
 #endif /* not lint */
 
 #include "defs.h"
+#include <string.h>
 
 /* TABLE_SIZE is the number of entries in the symbol table. */
 /* TABLE_SIZE must be a power of two.			    */
@@ -51,27 +52,21 @@ bucket *first_symbol;
 bucket *last_symbol;
 
 
-int
-hash(name)
-char *name;
-{
+int hash(char* name) {
     register char *s;
     register int c, k;
 
     assert(name && *name);
     s = name;
     k = *s;
-    while (c = *++s)
+    while ((c = *++s))
 	k = (31*k + c) & (TABLE_SIZE - 1);
 
     return (k);
 }
 
 
-bucket *
-make_bucket(name)
-char *name;
-{
+bucket* make_bucket(char* name) {
     register bucket *bp;
 
     assert(name);
@@ -95,10 +90,7 @@ char *name;
 }
 
 
-bucket *
-lookup(name)
-char *name;
-{
+bucket* lookup(char *name) {
     register bucket *bp, **bpp;
 
     bpp = symbol_table + hash(name);
@@ -119,8 +111,7 @@ char *name;
 }
 
 
-create_symbol_table()
-{
+void create_symbol_table() {
     register int i;
     register bucket *bp;
 
@@ -139,15 +130,13 @@ create_symbol_table()
 }
 
 
-free_symbol_table()
-{
+void free_symbol_table() {
     FREE(symbol_table);
     symbol_table = 0;
 }
 
 
-free_symbols()
-{
+void free_symbols() {
     register bucket *p, *q;
 
     for (p = first_symbol; p; p = q)

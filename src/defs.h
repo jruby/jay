@@ -39,6 +39,9 @@
 #include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 
 /*  machine-dependent definitions			*/
@@ -298,11 +301,149 @@ extern bucket *make_bucket();
 
 extern int errno;
 
+/* error.c functions */
+void fatal(char *msg);
+void no_space();
+void open_error(char *filename);
+void unexpected_EOF();
+void print_pos(char *st_line, char *st_cptr);
+void syntax_error(int st_lineno, char *st_line, char *st_cptr);
+void unterminated_comment(int c_lineno, char *c_line, char *c_cptr);
+void unterminated_string(int s_lineno, char *s_line, char *s_cptr);
+void unterminated_text(int t_lineno, char *t_line, char *t_cptr);
+void illegal_tag(int t_lineno, char *t_line, char *t_cptr);
+void illegal_character(char *c_cptr);
+void used_reserved(char *s);
+void tokenized_start(char *s);
+void retyped_warning(char *s);
+void reprec_warning(char *s);
+void revalued_warning(char *s);
+void terminal_start(char *s);
+void restarted_warning();
+void no_grammar();
+void terminal_lhs(int s_lineno);
+void prec_redeclared();
+void unterminated_action(int a_lineno, char *a_line, char *a_cptr);
+void dollar_warning(int a_lineno, int i);
+void dollar_error(int a_lineno, char *a_line, char *a_cptr);
+void untyped_lhs();
+void untyped_rhs(int i, char *s);
+void unknown_rhs(int i);
+void default_action_warning();
+void undefined_goal(char *s);
+void undefined_symbol_warning(char *s);
 
-/* system functions */
+/* from symtab.c */
+int hash(char* name);
+bucket* make_bucket(char* name);
+bucket* lookup(char *name);
+void create_symbol_table();
+void free_symbol_table();
+void free_symbols();
 
-extern void free();
-extern char *calloc();
-extern char *malloc();
-extern char *realloc();
-extern char *strcpy();
+/* from mkpar.c */
+void make_parser();
+void find_final_state();
+void unused_rules();
+void remove_conflicts();
+void total_conflicts();
+void defreds();
+void free_action_row(action* p);
+void free_parser();
+
+/* from main.c */
+void done(int k);
+void onintr(int signo);
+void set_signals();
+void usage();
+void getargs(int argc, char **argv);
+void create_file_names();
+void open_files();
+
+/* from output.c */
+void output ();
+int default_goto(int symbol);
+int matching_vector(int vector);
+int pack_vector(int vector);
+int is_C_identifier(char *name);
+
+/* from lalr.c */
+void lalr();
+void set_state_table();
+void set_accessing_symbol();
+void set_shift_table();
+void set_reduction_table();
+void set_maxrhs();
+void initialize_LA();
+void set_goto_map();
+void initialize_F();
+void build_relations();
+void add_lookback_edge(int stateno, int ruleno, int gotono);
+void compute_FOLLOWS();
+void compute_lookaheads();
+void digraph(short **relation);
+void traverse(int i);
+
+/* from reader.c */
+void cachec(int c);
+void get_line();
+void skip_comment();
+void copy_text(FILE *f);
+void declare_tokens(int assoc);
+void declare_types();
+void declare_start();
+void read_declarations();
+void initialize_grammar();
+void expand_items();
+void expand_rules();
+void start_rule(bucket* bp, int s_lineno);
+void advance_to_start();
+void end_rule();
+void insert_empty_rule();
+void add_symbol();
+void copy_action();
+void read_grammar();
+void free_tags();
+void pack_names();
+void check_symbols();
+void pack_symbols();
+void pack_grammar();
+void print_grammar();
+void reader();
+
+/* from lr0.c */
+void allocate_itemsets();
+void allocate_storage();
+void append_states();
+void free_storage();
+void generate_states();
+void initialize_states();
+void new_itemsets();
+void show_cores();
+void show_ritems();
+void show_rrhs();
+void show_shifts();
+void save_shifts();
+void save_reductions();
+void set_derives();
+void free_derives();
+void print_derives();
+void set_nullable();
+void free_nullable();
+void lr0();
+
+/* from closure.c */
+void set_EFF();
+void set_first_derives();
+void closure(short* nucleus, int n);
+void finalize_closure();
+void print_closure(int n);
+void print_EFF();
+void print_first_derives();
+
+/* from warshall.c */
+void reflexive_transitive_closure(unsigned* R, int n);
+
+
+/* from verbose.c */
+void verbose();

@@ -605,7 +605,7 @@ int is_C_identifier(char *name) {
 
     if (!isalpha(c) && c != '_' && c != '$')
 	return (0);
-    while (c = *++s)
+    while ((c = *++s))
     {
 	if (!isalnum(c) && c != '_' && c != '$')
 	    return (0);
@@ -638,7 +638,7 @@ void output_defines(char *prefix) {
 		{
 		    putchar(c);
 		}
-		while (c = *++s);
+		while ((c = *++s));
 	    }
 	    ++outline;
 	    printf(" = %d;\n", symbol_value[i]);
@@ -711,7 +711,7 @@ void output_yyNames_strings () {
   
   j = 0; fputs("    ", stdout);
   for (i = 0; i <= max; ++i) {
-    if (s = symnam[i]) {
+    if ((s = symnam[i])) {
       if (s[0] == '"') {
         k = 7;
         while (*++s != '"') {

@@ -6,7 +6,7 @@
 #   make CC=c89 will create jay.exe with Visual C++.
 
 CC	= `if [ -n "$$COMSPEC" ]; then echo gcc; else echo cc; fi`
-CFLAGS	= -s # -g
+CFLAGS	= #-s # -g
 
 c	= closure.c error.c lalr.c lr0.c main.c mkpar.c output.c reader.c \
 	  symtab.c verbose.c warshall.c
