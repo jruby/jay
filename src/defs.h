@@ -292,9 +292,9 @@ extern int final_state;
 
 /* global functions */
 
-extern char *allocate();
-extern bucket *lookup();
-extern bucket *make_bucket();
+extern char *allocate(unsigned int);
+extern bucket *lookup(char *);
+extern bucket *make_bucket(char *);
 
 
 /* system variables */

@@ -60,7 +60,7 @@ int *goto_map;
 int *from_state;
 int *to_state;
 
-int **transpose();
+int **transpose(int **, int);
 
 static int infinity;
 static int maxrhs;

@@ -90,8 +90,8 @@ char  *rassoc;
 int **derives;
 char *nullable;
 
-extern char *mktemp();
-extern char *getenv();
+extern char *mktemp(char *);
+extern char *getenv(const char *);
 
 void done(int k) {
     if (action_file) { fclose(action_file); unlink(action_file_name); }
